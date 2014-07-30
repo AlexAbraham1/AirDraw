@@ -31,6 +31,9 @@ public:
     void saveImage();
     void setColor(int x, int y);
     void changeBackground(bool selectedColor);
+    void startDraw();
+    void stopDraw();
+    void stepBack();
     
     shared_ptr<ofVideoGrabber> grabber;
     
@@ -42,6 +45,7 @@ public:
     
     
     std::vector<Circle*> circles;
+    std::vector<float> drawHistory;
     
     int circleRadius;
     int xMargin, yMargin;
@@ -50,6 +54,8 @@ public:
     int xLow, xHigh, yLow, yHigh;
     
     int DEVICE_ID;
+    
+    int drawNumber;
     
     int screenWidth;
     int screenHeight;

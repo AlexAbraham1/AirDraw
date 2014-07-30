@@ -17,5 +17,7 @@ public:
 	ofColor color;
 
 	int timesDrawn;
+    
+    float drawID;
 
 };

@@ -8,6 +8,8 @@ Circle::Circle() {
 	color = ofColor(0, 0, 0);
 
 	timesDrawn = 0;
+    
+    drawID = 0;
 }
 
 void Circle::drawCircle() {

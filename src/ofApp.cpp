@@ -22,7 +22,7 @@ void ofApp::setup(){
     setupMode = true;
     
     circleRadius = 5;
-    xMargin = 25;
+    xMargin = 15;
     yMargin = 15;
     
     maxTimesDrawn = 1000;
@@ -124,7 +124,7 @@ void ofApp::update(){
 void ofApp::draw(){
     
     if (setupMode) {
-        ofSetColor(0xFFFFFF);
+        ofSetHexColor(0xFFFFFF);
         image.draw(0,0);
         
         ofPushStyle();
@@ -191,10 +191,10 @@ void ofApp::keyPressed  (int key){
     
     switch (key){
         case ' ':
-            drawMode = !drawMode;
+            drawMode ? stopDraw() : startDraw();
             break;
         case 'c':
-            drawMode = false;
+            stopDraw();
             circles.clear();
             break;
         case 's':
@@ -215,6 +215,9 @@ void ofApp::keyPressed  (int key){
             if (circleRadius >= 10) {
                 circleRadius -= 5;
             }
+            break;
+        case 'z':
+            stepBack();
             break;
     }
 }
@@ -350,13 +353,13 @@ void ofApp::setColor(int x, int y) {
     avgGreen = (minGreen + maxGreen)/2;
     avgBlue = (minBlue + maxBlue)/2;
     
-    minRed = avgRed - 25;
-    minGreen = avgGreen - 25;
-    minBlue = avgBlue - 25;
+    minRed = avgRed - 15;
+    minGreen = avgGreen - 15;
+    minBlue = avgBlue - 15;
     
-    maxRed = avgRed + 25;
-    maxGreen = avgGreen + 25;
-    maxBlue = avgBlue + 25;
+    maxRed = avgRed + 15;
+    maxGreen = avgGreen + 15;
+    maxBlue = avgBlue + 15;
     
     circleColor = ofColor(avgRed, avgGreen, avgBlue);
     
@@ -373,4 +376,45 @@ void ofApp::changeBackground(bool selectedColor) {
         background == ofColor(255,255,255) ? background = ofColor(0,0,0) : background = ofColor(255,255,255);
     }
     
+}
+
+void ofApp::startDraw() {
+    if (!setupMode && !drawMode) {
+        drawMode = true;
+    }
+}
+
+void ofApp::stopDraw() {
+    
+    drawMode = false;
+    float drawID = ofGetElapsedTimef();
+    for (std::vector<Circle>::size_type i = 0; i != circles.size(); i++) {
+        Circle * circle = circles[i];
+        
+        if (circle->drawID == 0) {
+            circle ->drawID = drawID;
+        }
+    }
+    drawHistory.push_back(drawID);
+    
+    
+    
+}
+
+void ofApp::stepBack() {
+    
+    if (drawHistory.size() > 0) {
+        float drawID = drawHistory[drawHistory.size() - 1];
+        
+        for(std::vector<Circle*>::iterator circle = circles.begin(); circle != circles.end();) {
+            if ((*circle)->drawID == drawID) {
+                delete * circle;
+                circle = circles.erase(circle);
+            }
+            else {
+                ++ circle;
+            }
+        }
+        drawHistory.pop_back();
+    }
 }
