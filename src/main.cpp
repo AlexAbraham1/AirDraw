@@ -3,8 +3,8 @@
 
 //========================================================================
 int main( ){
-    int width = 960;
-    int height = 720;
+    int width = 640;
+    int height = 640;
 	ofSetupOpenGL(width,height, OF_WINDOW);			// <-------- setup the GL context
 
 	// this kicks off the running of my app

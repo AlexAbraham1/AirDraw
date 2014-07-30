@@ -30,14 +30,13 @@ public:
     void resetCoordinates();
     bool colorFound();
     void saveImage();
+    void setColor(int x, int y);
     
     shared_ptr<ofVideoGrabber> grabber;
     
     ofImage image;
     
-    
-    bool firstRun;
-    bool invertColors;
+    bool setupMode;
     bool drawMode;
     
     
@@ -47,16 +46,13 @@ public:
     int minRadius;
     int maxRadius;
     int maxTimesDrawn;
-    float minRed, minGreen, minBlue, maxRed, maxGreen, maxBlue;
+    float minRed, minGreen, minBlue, maxRed, maxGreen, maxBlue, avgRed, avgGreen, avgBlue;
     int xLow, xHigh, yLow, yHigh;
     
     int DEVICE_ID;
     
     int screenWidth;
     int screenHeight;
-    int haarWidth;
-    int haarHeight;
     
-    int orientation;
-    
+    ofTrueTypeFont verdana;
 };

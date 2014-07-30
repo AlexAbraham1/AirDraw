@@ -6,8 +6,10 @@ void ofApp::setup(){
     ofBackground(255, 255, 255);
     ofSetLogLevel (OF_LOG_VERBOSE);
     
-    screenWidth = 960;
-    screenHeight = 720;
+    screenWidth = 640;
+    screenHeight = 480;
+    
+    verdana.loadFont("verdana.ttf", 12);
     
     grabber = shared_ptr<ofVideoGrabber>(new ofVideoGrabber());
     grabber->setPixelFormat(OF_PIXELS_RGB);
@@ -17,20 +19,18 @@ void ofApp::setup(){
     
     image.allocate(screenWidth, screenHeight, OF_IMAGE_COLOR);
     
-    firstRun = true;
+    setupMode = true;
     
     minRadius = 10;
     maxRadius = 30;
     
     maxTimesDrawn = 1000;
     
-    minRed = 215;
-    minGreen = 95;
-    minBlue = 155;
+    minRed = minGreen = minBlue = 255;
     
-    maxRed = 255;
-    maxGreen = 135;
-    maxBlue = 195;
+    maxRed = maxGreen = maxBlue = 0;
+    
+    avgRed = avgGreen = avgBlue = 0;
     
     drawMode = false;
     resetCoordinates();
@@ -47,59 +47,60 @@ void ofApp::update(){
         image.setFromPixels(grabber->getPixelsRef());
         image.mirror(false, true);
         
-        
-        for (int x = 0; x < screenWidth; x++) {
-            for (int y = 0; y < screenHeight; y++) {
-                ofColor color = image.getColor(x,y);
-                float red = float(color.r);
-                float green = float(color.g);
-                float blue = float(color.b);
-                
-                if (ofInRange(red, minRed, maxRed) &&
-                    ofInRange(green, minGreen, maxGreen) &&
-                    ofInRange(blue, minBlue, maxBlue)) {
+        if (!setupMode) {
+            
+            for (int x = 0; x < screenWidth; x++) {
+                for (int y = 0; y < screenHeight; y++) {
+                    ofColor color = image.getColor(x,y);
+                    float red = float(color.r);
+                    float green = float(color.g);
+                    float blue = float(color.b);
                     
+                    if (ofInRange(red, minRed, maxRed) &&
+                        ofInRange(green, minGreen, maxGreen) &&
+                        ofInRange(blue, minBlue, maxBlue)) {
+                        
+                        
+                        if (x < xLow) {
+                            xLow = x;
+                        }
+                        if (x > xHigh) {
+                            xHigh = x;
+                        }
+                        if (y < yLow) {
+                            yLow = y;
+                        }
+                        if (y > yHigh) {
+                            yHigh = y;
+                        }
+                        
+                    }
                     
-                    if (x < xLow) {
-                        xLow = x;
-                    }
-                    if (x > xHigh) {
-                        xHigh = x;
-                    }
-                    if (y < yLow) {
-                        yLow = y;
-                    }
-                    if (y > yHigh) {
-                        yHigh = y;
-                    }
                     
                 }
-                
-                
             }
-        }
-        
-        if (drawMode) {
-            if (colorFound()) {
-                int x = (xLow + xHigh)/2;
-                int y = (yLow + yHigh)/2;
-                int radius = 5;
-                int z = 50;
-                ofColor color = ofColor(255,105,180);
-                
-                Circle * circle = new Circle();
-                
-                circle->x = x;
-                circle->y = y;
-                circle->z = z;
-                circle->radius = radius;
-                circle->color = color;
-                
-                circles.push_back(circle);
+            
+            if (drawMode) {
+                if (colorFound()) {
+                    int x = (xLow + xHigh)/2;
+                    int y = (yLow + yHigh)/2;
+                    int radius = 5;
+                    int z = 50;
+                    ofColor color = ofColor(avgRed, avgGreen, avgBlue);
+                    
+                    Circle * circle = new Circle();
+                    
+                    circle->x = x;
+                    circle->y = y;
+                    circle->z = z;
+                    circle->radius = radius;
+                    circle->color = color;
+                    
+                    circles.push_back(circle);
+                }
             }
+            
         }
-        
-        
     }
     
 }
@@ -107,26 +108,47 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    ofSetHexColor(0x000000);
-    ofRect(0, 0, screenWidth, screenHeight);
-    
-    ofSetHexColor(0xFF69B4);
-    
-    
-    for (std::vector<Circle>::size_type i = 0; i != circles.size(); i++) {
-        Circle * circle = circles[i];
-        circle->drawCircle();
-    }
-    
-    if (colorFound()) {
-        int x = (xLow + xHigh)/2;
-        int y = (yLow + yHigh)/2;
-        int radius = 5;
-        int z = 50;
+    if (setupMode) {
+        ofSetHexColor(0xFFFFFF);
+        image.draw(0,0);
+        
         ofPushStyle();
-        ofSetColor(255, 105, 180);
-        ofCircle(x, y, z, radius);
+        ofSetHexColor(0x000000);
+        verdana.drawString("Hold up the object you want to use and click on it.", 20, screenHeight + 25);
+        verdana.drawString("Make sure the object is a unique color.", 20, screenHeight + 45);
+        ofSetHexColor(0xFF0000);
+        verdana.drawString("'ESC': Quit AirDraw", 20, screenHeight + 70);
         ofPopStyle();
+    } else {
+        ofSetHexColor(0x000000);
+        ofRect(0, 0, screenWidth, screenHeight);
+        
+        ofSetColor(avgRed, avgGreen, avgBlue);
+        
+        for (std::vector<Circle>::size_type i = 0; i != circles.size(); i++) {
+            Circle * circle = circles[i];
+            circle->drawCircle();
+        }
+        
+        if (colorFound()) {
+            int x = (xLow + xHigh)/2;
+            int y = (yLow + yHigh)/2;
+            int radius = 5;
+            int z = 50;
+            ofPushStyle();
+            ofSetColor(avgRed, avgGreen, avgBlue);
+            ofCircle(x, y, z, radius);
+            ofPopStyle();
+        }
+        
+        
+        ofSetHexColor(0x000000);
+        verdana.drawString("Hold up the selected object to webcam and draw!", 20, screenHeight + 25);
+        verdana.drawString("'SPACE': Toggle Draw Mode", 20, screenHeight + 45);
+        verdana.drawString("'C': Clear Drawing", 20, screenHeight + 65);
+        verdana.drawString("'S': Save Drawing (Desktop)", 20, screenHeight + 85);
+        ofSetHexColor(0xFF0000);
+        verdana.drawString("'ESC': Quit AirDraw", 20, screenHeight + 110);
     }
     
 }
@@ -164,7 +186,14 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-    
+    if (setupMode) {
+        setColor(x, y);
+        setupMode = false;
+        
+    } else {
+        drawMode = false;
+        setupMode = true;
+    }
 }
 
 //--------------------------------------------------------------
@@ -229,5 +258,71 @@ bool ofApp::colorFound() {
 void ofApp::saveImage() {
     stringstream ss;
     ss << ofGetElapsedTimef();
-    ofSaveScreen(ofFilePath::getUserHomeDir() + "/Desktop/" + ss.str() + ".jpg");
+    string filename =ofFilePath::getUserHomeDir() + "/Desktop/" + ss.str() + ".jpg";
+    ofSaveScreen(filename);
+    image.loadImage(filename);
+    image.crop(0, 0, screenWidth, screenHeight);
+    image.saveImage(filename);
+}
+
+void ofApp::setColor(int x, int y) {
+    xLow = x - 5;
+    xHigh = x + 5;
+    yLow = y - 5;
+    yHigh = y + 5;
+    
+    minRed = 255;
+    minGreen = 255;
+    minBlue = 255;
+    maxRed = 0;
+    maxGreen = 0;
+    maxBlue = 0;
+    
+    for (int a = xLow; a < xHigh; a++) {
+        for (int b = yLow; b < yHigh; b++) {
+            ofColor color = image.getColor(a,b);
+            float red = float(color.r);
+            float green = float(color.g);
+            float blue = float(color.b);
+            
+            if (red < minRed) {
+                minRed = red;
+            }
+            if (green < minGreen) {
+                minGreen = green;
+            }
+            if (blue < minBlue) {
+                minBlue = blue;
+            }
+            
+            if (red > maxRed) {
+                maxRed = red;
+            }
+            if (green > maxGreen) {
+                maxGreen = green;
+            }
+            if (blue > maxBlue) {
+                maxBlue = blue;
+            }
+            
+            
+        }
+    }
+    
+    avgRed = (minRed + maxRed)/2;
+    avgGreen = (minGreen + maxGreen)/2;
+    avgBlue = (minBlue + maxBlue)/2;
+    
+    minRed = avgRed - 25;
+    minGreen = avgGreen - 25;
+    minBlue = avgBlue - 25;
+    
+    maxRed = avgRed + 25;
+    maxGreen = avgGreen + 25;
+    maxBlue = avgBlue + 25;
+    
+    ofLogNotice() << "minRed: " << minRed << ", minGreen: " << minGreen << ", minBlue: " << minBlue;
+    ofLogNotice() << "maxRed: " << maxRed << ", maxGreen: " << maxGreen << ", maxBlue: " << maxBlue;
+    
+    resetCoordinates();
 }
