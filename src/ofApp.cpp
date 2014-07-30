@@ -21,8 +21,9 @@ void ofApp::setup(){
     
     setupMode = true;
     
-    minRadius = 10;
-    maxRadius = 30;
+    circleRadius = 5;
+    xMargin = 25;
+    yMargin = 15;
     
     maxTimesDrawn = 1000;
     
@@ -31,6 +32,9 @@ void ofApp::setup(){
     maxRed = maxGreen = maxBlue = 0;
     
     avgRed = avgGreen = avgBlue = 0;
+    
+    background = ofColor(0,0,0);
+    circleColor = ofColor(avgRed, avgGreen, avgBlue);
     
     drawMode = false;
     resetCoordinates();
@@ -84,17 +88,28 @@ void ofApp::update(){
                 if (colorFound()) {
                     int x = (xLow + xHigh)/2;
                     int y = (yLow + yHigh)/2;
-                    int radius = 5;
-                    int z = 50;
-                    ofColor color = ofColor(avgRed, avgGreen, avgBlue);
                     
+                    if (x < circleRadius) {
+                        x = circleRadius;
+                    }
+                    if (y < circleRadius + yMargin) {
+                        y = circleRadius + yMargin;
+                    }
+                    if (x > screenWidth - circleRadius - xMargin) {
+                        x = screenWidth - circleRadius - xMargin;
+                    }
+                    if (y > screenHeight - circleRadius - yMargin) {
+                        y = screenHeight - circleRadius - yMargin;
+                    }
+                    
+                    int z = 50;
                     Circle * circle = new Circle();
                     
                     circle->x = x;
                     circle->y = y;
                     circle->z = z;
-                    circle->radius = radius;
-                    circle->color = color;
+                    circle->radius = circleRadius;
+                    circle->color = circleColor;
                     
                     circles.push_back(circle);
                 }
@@ -109,7 +124,7 @@ void ofApp::update(){
 void ofApp::draw(){
     
     if (setupMode) {
-        ofSetHexColor(0xFFFFFF);
+        ofSetColor(0xFFFFFF);
         image.draw(0,0);
         
         ofPushStyle();
@@ -120,10 +135,10 @@ void ofApp::draw(){
         verdana.drawString("'ESC': Quit AirDraw", 20, screenHeight + 70);
         ofPopStyle();
     } else {
-        ofSetHexColor(0x000000);
+        ofSetColor(background);
         ofRect(0, 0, screenWidth, screenHeight);
         
-        ofSetColor(avgRed, avgGreen, avgBlue);
+        ofSetColor(circleColor);
         
         for (std::vector<Circle>::size_type i = 0; i != circles.size(); i++) {
             Circle * circle = circles[i];
@@ -133,10 +148,24 @@ void ofApp::draw(){
         if (colorFound()) {
             int x = (xLow + xHigh)/2;
             int y = (yLow + yHigh)/2;
-            int radius = 5;
+            
+            if (x < circleRadius) {
+                x = circleRadius;
+            }
+            if (y < circleRadius) {
+                y = circleRadius;
+            }
+            if (x > screenWidth - circleRadius - xMargin) {
+                x = screenWidth - circleRadius - xMargin;
+            }
+            if (y > screenHeight - circleRadius - yMargin) {
+                y = screenHeight - circleRadius - yMargin;
+            }
+            
+            int radius = circleRadius;
             int z = 50;
             ofPushStyle();
-            ofSetColor(avgRed, avgGreen, avgBlue);
+            ofSetColor(circleColor);
             ofCircle(x, y, z, radius);
             ofPopStyle();
         }
@@ -147,8 +176,11 @@ void ofApp::draw(){
         verdana.drawString("'SPACE': Toggle Draw Mode", 20, screenHeight + 45);
         verdana.drawString("'C': Clear Drawing", 20, screenHeight + 65);
         verdana.drawString("'S': Save Drawing (Desktop)", 20, screenHeight + 85);
+        verdana.drawString("'RIGHT': Change Background (Black/White)", 20, screenHeight + 105);
+        verdana.drawString("'LEFT': Change Background (Selected Color)", 20, screenHeight + 125);
+        verdana.drawString("'UP/DOWN': Change Circle Radius", 20, screenHeight + 145);
         ofSetHexColor(0xFF0000);
-        verdana.drawString("'ESC': Quit AirDraw", 20, screenHeight + 110);
+        verdana.drawString("'ESC': Quit AirDraw", 20, screenHeight + 170);
     }
     
 }
@@ -167,6 +199,22 @@ void ofApp::keyPressed  (int key){
             break;
         case 's':
             saveImage();
+            break;
+        case OF_KEY_RIGHT:
+            changeBackground(false);
+            break;
+        case OF_KEY_LEFT:
+            changeBackground(true);
+            break;
+        case OF_KEY_UP:
+            if (circleRadius+5 < (screenHeight/2 - xMargin)) {
+                circleRadius += 5;
+            }
+            break;
+        case OF_KEY_DOWN:
+            if (circleRadius >= 10) {
+                circleRadius -= 5;
+            }
             break;
     }
 }
@@ -231,17 +279,6 @@ bool ofApp::isBlankSpace(int x, int y) {
     }
     return true;
     
-}
-
-void ofApp::fixZIndex() {
-    for (std::vector<Circle>::size_type i = 0; i != circles.size(); i++) {
-        Circle * circle = circles[i];
-        
-        float smallRadius = (minRadius + ((minRadius + maxRadius)/2))/2;
-        if (circle->radius <= smallRadius) {
-            circle->z = 50;
-        }
-    }
 }
 
 void ofApp::resetCoordinates() {
@@ -321,8 +358,19 @@ void ofApp::setColor(int x, int y) {
     maxGreen = avgGreen + 25;
     maxBlue = avgBlue + 25;
     
+    circleColor = ofColor(avgRed, avgGreen, avgBlue);
+    
     ofLogNotice() << "minRed: " << minRed << ", minGreen: " << minGreen << ", minBlue: " << minBlue;
     ofLogNotice() << "maxRed: " << maxRed << ", maxGreen: " << maxGreen << ", maxBlue: " << maxBlue;
     
     resetCoordinates();
+}
+
+void ofApp::changeBackground(bool selectedColor) {
+    if (selectedColor) {
+        background = circleColor;
+    } else {
+        background == ofColor(255,255,255) ? background = ofColor(0,0,0) : background = ofColor(255,255,255);
+    }
+    
 }

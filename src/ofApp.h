@@ -26,11 +26,11 @@ public:
     bool isBlankSpace(int x, int y);
     void switchCamera();
     void switchInvert();
-    void fixZIndex();
     void resetCoordinates();
     bool colorFound();
     void saveImage();
     void setColor(int x, int y);
+    void changeBackground(bool selectedColor);
     
     shared_ptr<ofVideoGrabber> grabber;
     
@@ -43,8 +43,8 @@ public:
     
     std::vector<Circle*> circles;
     
-    int minRadius;
-    int maxRadius;
+    int circleRadius;
+    int xMargin, yMargin;
     int maxTimesDrawn;
     float minRed, minGreen, minBlue, maxRed, maxGreen, maxBlue, avgRed, avgGreen, avgBlue;
     int xLow, xHigh, yLow, yHigh;
@@ -53,6 +53,9 @@ public:
     
     int screenWidth;
     int screenHeight;
+    
+    ofColor background;
+    ofColor circleColor;
     
     ofTrueTypeFont verdana;
 };

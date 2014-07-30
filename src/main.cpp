@@ -4,7 +4,7 @@
 //========================================================================
 int main( ){
     int width = 640;
-    int height = 640;
+    int height = 700;
 	ofSetupOpenGL(width,height, OF_WINDOW);			// <-------- setup the GL context
 
 	// this kicks off the running of my app
