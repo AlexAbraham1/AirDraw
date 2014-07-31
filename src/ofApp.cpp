@@ -11,7 +11,8 @@ void ofApp::setup(){
     
     verdana.loadFont("verdana.ttf", 12);
     
-    client.setup("V5uhScUH8usSXjCcbQJqEDLM8","7iXRIgRxVWsF4S8i49z0vmaQeafC8W6KEBBw1qdhyM9C5xb538");
+    twitterClient.authorize("V5uhScUH8usSXjCcbQJqEDLM8","7iXRIgRxVWsF4S8i49z0vmaQeafC8W6KEBBw1qdhyM9C5xb538");
+    actualTweet=0;
     
     grabber = shared_ptr<ofVideoGrabber>(new ofVideoGrabber());
     grabber->setPixelFormat(OF_PIXELS_RGB);
@@ -226,9 +227,9 @@ void ofApp::keyPressed  (int key){
             stepForward();
             break;
         case 't':
-            if (client.isAuthorized()) {
-                saveImageTweet();
-            }
+            saveImageTweet();
+            break;
+            
     }
 }
 
@@ -312,7 +313,8 @@ bool ofApp::colorFound() {
 void ofApp::saveImage() {
     stringstream ss;
     ss << ofGetElapsedTimef();
-    string filename =ofFilePath::getUserHomeDir() + "/Desktop/" + ss.str() + ".jpg";
+    ofFileDialogResult file = ofSystemSaveDialog("picture.jpg", "Where would you like to save your picture?");
+    string filename = file.getPath();
     ofSaveScreen(filename);
     image.loadImage(filename);
     image.crop(0, 0, screenWidth, screenHeight);
@@ -328,7 +330,8 @@ void ofApp::saveImageTweet() {
     image.crop(0, 0, screenWidth, screenHeight);
     image.saveImage(filename);
     
-    client.exampleUpdateStatusWithPhotoMethod("AirDraw POST", filename);
+    twitterClient.postStatus("test image", filename);
+    //client.exampleUpdateStatusWithPhotoMethod("AirDraw POST", filename);
 }
 
 void ofApp::setColor(int x, int y) {

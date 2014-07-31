@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxCvHaarFinder.h"
-#include "ofxExampleTwitterClient.h"
+#include "ofxTwitter.h"
 
 #include "Circle.h"
 
@@ -69,5 +69,8 @@ public:
     
     ofTrueTypeFont verdana;
     
-    ofxExampleTwitterClient client;
+    
+    ofxTwitter twitterClient;
+    //ofxTwitterTweet tweet;
+    int actualTweet;
 };
