@@ -11,6 +11,8 @@ void ofApp::setup(){
     
     verdana.loadFont("verdana.ttf", 12);
     
+    client.setup("V5uhScUH8usSXjCcbQJqEDLM8","7iXRIgRxVWsF4S8i49z0vmaQeafC8W6KEBBw1qdhyM9C5xb538");
+    
     grabber = shared_ptr<ofVideoGrabber>(new ofVideoGrabber());
     grabber->setPixelFormat(OF_PIXELS_RGB);
     DEVICE_ID = grabber->listDevices().size() - 1;
@@ -223,6 +225,10 @@ void ofApp::keyPressed  (int key){
         case 'x':
             stepForward();
             break;
+        case 't':
+            if (client.isAuthorized()) {
+                saveImageTweet();
+            }
     }
 }
 
@@ -311,6 +317,18 @@ void ofApp::saveImage() {
     image.loadImage(filename);
     image.crop(0, 0, screenWidth, screenHeight);
     image.saveImage(filename);
+}
+
+void ofApp::saveImageTweet() {
+    stringstream ss;
+    ss << ofGetElapsedTimef();
+    string filename =ofFilePath::getUserHomeDir() + "/Desktop/" + ss.str() + ".jpg";
+    ofSaveScreen(filename);
+    image.loadImage(filename);
+    image.crop(0, 0, screenWidth, screenHeight);
+    image.saveImage(filename);
+    
+    client.exampleUpdateStatusWithPhotoMethod("AirDraw POST", filename);
 }
 
 void ofApp::setColor(int x, int y) {

@@ -1,3 +1,5 @@
 ofxOpenCv
 ofxXmlSettings
+ofxJSON
 ofxOAuth
+ofxTwitter

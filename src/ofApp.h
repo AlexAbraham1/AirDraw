@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxCvHaarFinder.h"
+#include "ofxExampleTwitterClient.h"
 
 #include "Circle.h"
 
@@ -30,6 +31,7 @@ public:
     void resetCoordinates();
     bool colorFound();
     void saveImage();
+    void saveImageTweet();
     void setColor(int x, int y);
     void changeBackground(bool selectedColor);
     void startDraw();
@@ -66,4 +68,6 @@ public:
     ofColor circleColor;
     
     ofTrueTypeFont verdana;
+    
+    ofxExampleTwitterClient client;
 };
