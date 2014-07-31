@@ -36,7 +36,7 @@ void ofApp::setup(){
     background = ofColor(0,0,0);
     circleColor = ofColor(avgRed, avgGreen, avgBlue);
     
-    drawMode = false;
+    drawMode = false; //Used to determine whether circles should be drawn on screen or not
     resetCoordinates();
 }
 
