@@ -179,8 +179,9 @@ void ofApp::draw(){
         verdana.drawString("'RIGHT': Change Background (Black/White)", 20, screenHeight + 105);
         verdana.drawString("'LEFT': Change Background (Selected Color)", 20, screenHeight + 125);
         verdana.drawString("'UP/DOWN': Change Circle Radius", 20, screenHeight + 145);
+        verdana.drawString("'z': Step Back", 20, screenHeight + 165);
         ofSetHexColor(0xFF0000);
-        verdana.drawString("'ESC': Quit AirDraw", 20, screenHeight + 170);
+        verdana.drawString("'ESC': Quit AirDraw", 20, screenHeight + 190);
     }
     
 }
@@ -219,7 +220,14 @@ void ofApp::keyPressed  (int key){
         case 'z':
             stepBack();
             break;
+        case 'x':
+            stepForward();
+            break;
     }
+}
+
+void ofApp::keyReleased(int key) {
+
 }
 
 //--------------------------------------------------------------
@@ -396,8 +404,7 @@ void ofApp::stopDraw() {
         }
     }
     drawHistory.push_back(drawID);
-    
-    
+    previous.clear();
     
 }
 
@@ -405,10 +412,11 @@ void ofApp::stepBack() {
     
     if (drawHistory.size() > 0) {
         float drawID = drawHistory[drawHistory.size() - 1];
+        std::vector<Circle*> deletedCircles;
         
         for(std::vector<Circle*>::iterator circle = circles.begin(); circle != circles.end();) {
             if ((*circle)->drawID == drawID) {
-                delete * circle;
+                deletedCircles.push_back(*circle);
                 circle = circles.erase(circle);
             }
             else {
@@ -416,5 +424,24 @@ void ofApp::stepBack() {
             }
         }
         drawHistory.pop_back();
+        previous.push_back(deletedCircles);
+        ofLogNotice() << "Previous Size: " << previous.size();
+    }
+}
+
+void ofApp::stepForward() {
+    if (previous.size() > 0) {
+        std::vector<Circle*> deletedCircles = previous[previous.size() - 1];
+        float drawID = -1;
+        for(std::vector<Circle*>::iterator circle = deletedCircles.begin(); circle != deletedCircles.end(); ++circle) {
+            circles.push_back(*circle);
+            
+            if (drawID == -1) {
+                drawID = (*circle)->drawID;
+            }
+            
+        }
+        previous.pop_back();
+        drawHistory.push_back(drawID);
     }
 }

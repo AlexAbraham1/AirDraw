@@ -16,6 +16,7 @@ public:
     void draw();
     
     void keyPressed  (int key);
+    void keyReleased (int key);
     void mouseMoved(int x, int y );
     void mouseDragged(int x, int y, int button);
     void mousePressed(int x, int y, int button);
@@ -34,6 +35,7 @@ public:
     void startDraw();
     void stopDraw();
     void stepBack();
+    void stepForward();
     
     shared_ptr<ofVideoGrabber> grabber;
     
@@ -43,9 +45,9 @@ public:
     bool drawMode;
     
     
-    
     std::vector<Circle*> circles;
     std::vector<float> drawHistory;
+    std::vector< std::vector<Circle*> > previous;
     
     int circleRadius;
     int xMargin, yMargin;
